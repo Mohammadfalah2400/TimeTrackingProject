@@ -10,7 +10,9 @@ import sys
 from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import QDialog, QApplication
 from PyQt5.uic import loadUi
-
+import smtplib
+from email.message import EmailMessage
+import ssl
 class LoginUI(QDialog):
     def __init__(self):
         super(LoginUI,self).__init__()
@@ -95,6 +97,7 @@ class MainMenuUI(QDialog):
 
         # Set the title of the workspace based on user's name!
         self.titleWorkspaceLabel.setText(f"{userName}'s Workspace!")
+
         # Hide error messages by default from the GUI
         self.errorTextRecipientsEmailLabel.setText("")
         self.errorTextProjectLabel.setText("")
@@ -108,6 +111,8 @@ class MainMenuUI(QDialog):
 
         self.addRecipientButton.clicked.connect(self.addRecipient)
         self.deleteRecipientButton.clicked.connect(self.deleteRecipient)
+        self.sendEmailThisSummaryButton.clicked.connect(self.send_the_summary)
+
 
 
     def displayRecipients (self) :
@@ -135,6 +140,7 @@ class MainMenuUI(QDialog):
     def addRecipient (self) :
 
         addRecipient_email = self.addRecipientInput.text()
+
 
         if self.is_valid_email(addRecipient_email) : # If what the user typed is actually a valid email
 
@@ -182,6 +188,48 @@ class MainMenuUI(QDialog):
             json.dump(recipients_db, f, indent=2)
 
         self.displayRecipients()
+
+    def get_the_data_from_table(self):
+       rowcount = self.tableWidget.rowcount()
+       columcount = self.tableWidget.columncount()
+       for row in range(rowcount):
+           rowdata = ''
+           for column in range(columcount):
+               widgetItem = self.tableWidget.item(row,column)
+               if widgetItem and widgetItem.text : 
+                   rowdata = rowdata + '-' + widgetItem.text()
+               else : 
+                   rowdata = rowdata + '-' + 'NULL'
+
+                   print(rowdata + '\n')
+
+
+
+
+    def send_the_summary(self):
+
+        sender_email = "pomodoroapp057@gmail.com"
+        reciver_email = self.addRecipientInput.text()
+        password = "azjbbkuvczasusix"
+        subject = 'this a summary'
+        body = self.get_the_data_from_table()
+        em = EmailMessage()
+        em['From'] = sender_email
+        em['To'] = reciver_email
+        em['Subject'] = subject
+        em.set_content(body)
+        context = ssl.create_default_context
+        sever = smtplib.SMTP('smtp.gmail.com',587)
+        sever.starttls()
+        sever.login(sender_email,password)
+        print("login success")
+        sever.sendmail(sender_email,reciver_email,em.as_string())
+        print("Email has been send ")
+
+
+
+        
+
 
 
 class PomodoroUI(QDialog):
