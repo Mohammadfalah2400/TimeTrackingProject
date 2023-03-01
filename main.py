@@ -190,12 +190,12 @@ class MainMenuUI(QDialog):
         self.displayRecipients()
 
     def get_the_data_from_table(self):
-       rowcount = self.tableWidget.rowcount()
-       columcount = self.tableWidget.columncount()
+       rowcount = self.summaryTableValuesWidget.rowCount()
+       columcount = self.summaryTableValuesWidget.columnCount()
        for row in range(rowcount):
            rowdata = ''
            for column in range(columcount):
-               widgetItem = self.tableWidget.item(row,column)
+               widgetItem = self.summaryTableValuesWidget.item(row,column)
                if widgetItem and widgetItem.text : 
                    rowdata = rowdata + '-' + widgetItem.text()
                else : 
